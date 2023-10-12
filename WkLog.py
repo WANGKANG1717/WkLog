@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# @Date     : 2023-09-20 10:50:19
+# @Date     : 2023-10-12 17:20:00
 # @Author   : WangKang
 # @Blog     : kang17.xyz
 # @Email    : 1686617586@qq.com
@@ -14,23 +14,36 @@
     2. 单文件最大尺寸: 10MB
     3. 默认输出路径: ./log
 """
+
+# 使用colorama重写
+
 import os
-import datetime
+from datetime import datetime
 import inspect
+from colorama import Fore, Back, Style, init
 
 
 class MyLog:
     LEVEL_COLOR = {
-        "Debug": "blue",
-        "Info": "green",
-        "Warn": "yellow",
-        "Error": "red",
+        "Debug": Fore.BLUE,
+        "Info": Fore.GREEN,
+        "Warn": Fore.YELLOW,
+        "Error": Fore.RED,
     }
-    MODE = ["debug", "info", "warning", "error"]
+    TIME_COLOR = Fore.CYAN
+    NORMAL_COLOR = Fore.RESET
+
+    DEBUG = "Debug"
+    INFO = "Info"
+    WARN = "Warn"
+    ERROR = "Error"
+
+    MODE = ["Debug", "Info", "Warn", "Error"]
+
     SLIENT = False  # 静默模式 开启后将隐藏重要的日志信息，避免用户看到重要信息
 
     def __init__(self):
-        self.mode = "debug"
+        self.mode = "Debug"
         self.time_format = "%Y-%m-%d %H:%M:%S.%f"
         self.output_to_file = False  # 是否输出到文件
         self.dir_path = "./log"  # 默认输出文件路径
@@ -40,17 +53,10 @@ class MyLog:
         self.rolling_cutting_index = 1  # 用来记录当前归档序号
         self.clear_pre_output = False  # 是否清空之前的日志输出
         self.init_settings()
-        # print(self.mode)
-        # print(self.time_format)
-        # print(self.output_to_file)
-        # print(self.dir_path)
-        # print(self.file_max_size)
-        # print(self.file_archive)
-        # print(self.rolling_cutting)
-        # print(self.clear_pre_output)
+        init(autoreset=True)
 
     def Debug(self, msg):
-        if self.mode.strip() in self.MODE[1:]:
+        if self.mode in self.MODE[1:]:
             return
         class_name = self.get_calling_class_name()
         func_name = self.get_calling_func_name()
@@ -80,42 +86,34 @@ class MyLog:
         self.print_msg(class_name, func_name, level, msg)
 
     def print_msg(self, class_name, func_name, level, msg):
-        now = datetime.datetime.now()
+        now = datetime.now()
         msg_time = now.strftime(self.time_format)
+        # 这里的日志归档可以再优化一下，现在不做，因为用不到这么细
         today = now.strftime("%Y-%m-%d")
+
         if not self.SLIENT:
-            if class_name != None:
-                res = f"{self.color(msg_time, 'cyan')} {self.color(level, self.LEVEL_COLOR[level]):14s} --- class={class_name}, func={func_name}: {self.color(msg, self.LEVEL_COLOR[level])}"
-            else:
-                res = f"{self.color(msg_time, 'cyan')} {self.color(level, self.LEVEL_COLOR[level]):14s} --- func={func_name}: {self.color(msg, self.LEVEL_COLOR[level])}"
+            res_to_console = f"{self.TIME_COLOR + msg_time} {(self.LEVEL_COLOR[level] + level):10s} {self.NORMAL_COLOR}--- {f'class={class_name}, ' if class_name else ''}func={func_name}: {self.LEVEL_COLOR[level] + msg}"
         else:
-            if class_name != None:
-                res = f"{self.color(msg_time, 'cyan')} {self.color(level, self.LEVEL_COLOR[level]):14s} --- {self.color(msg, self.LEVEL_COLOR[level])}"
-            else:
-                res = f"{self.color(msg_time, 'cyan')} {self.color(level, self.LEVEL_COLOR[level]):14s} --- {self.color(msg, self.LEVEL_COLOR[level])}"
-        print(res)
+            res_to_console = f"{self.TIME_COLOR + msg_time} {(self.LEVEL_COLOR[level] + level):10s} {self.NORMAL_COLOR}--- {self.LEVEL_COLOR[level] + msg}"
+
+        print(res_to_console)
+
         if self.output_to_file:
             # 没有开启静默模式
             if not self.SLIENT:
-                if class_name != None:
-                    res = f"{msg_time} {level:5s} --- class={class_name}, func={func_name}: {msg}\n"
-                else:
-                    res = f"{msg_time} {level:5s} --- func={func_name}: {msg}\n"
+                res_to_file = f"{msg_time} {level:5s} --- {f'class={class_name}, ' if class_name else ''}func={func_name}: {msg}\n"
             else:
                 # 开启静默模式
-                if class_name != None:
-                    res = f"{msg_time} {level:5s} --- {msg}\n"
-                else:
-                    res = f"{msg_time} {level:5s} --- {msg}\n"
+                res_to_file = f"{msg_time} {level:5s} --- {msg}\n"
             if not self.file_archive:
                 with open(f"{self.dir_path}/log.txt", "a", encoding="utf-8") as f:
-                    f.write(res)
+                    f.write(res_to_file)
             elif self.file_archive and not self.rolling_cutting:
                 with open(f"{self.dir_path}/{today}.txt", "a", encoding="utf-8") as f:
-                    f.write(res)
+                    f.write(res_to_file)
             elif self.file_archive and self.rolling_cutting:
                 with open(f"{self.dir_path}/{today}_{self.rolling_cutting_index}.txt", "a", encoding="utf-8") as f:
-                    f.write(res)
+                    f.write(res_to_file)
                 size = os.path.getsize(f"{self.dir_path}/{today}_{self.rolling_cutting_index}.txt")
                 if size >= self.file_max_size * 1024:
                     self.rolling_cutting_index += 1
@@ -131,20 +129,6 @@ class MyLog:
             return type(inspect.currentframe().f_back.f_back.f_locals["self"]).__name__
         except:
             return None
-
-    def color(self, msg, color):
-        if color == "red":
-            return f"\033[31m{msg}\033[0m"
-        elif color == "green":
-            return f"\033[32m{msg}\033[0m"
-        elif color == "yellow":
-            return f"\033[33m{msg}\033[0m"
-        elif color == "blue":
-            return f"\033[34m{msg}\033[0m"
-        elif color == "purple":
-            return f"\033[35m{msg}\033[0m"
-        elif color == "cyan":
-            return f"\033[36m{msg}\033[0m"
 
     def init_settings(self):
         if not os.path.exists("./log.properties"):
@@ -184,7 +168,7 @@ class MyLog:
                     flag = line.split("=")[1].strip()
                     self.clear_pre_output = True if flag == "true" else False
         if self.output_to_file and self.clear_pre_output and os.path.exists(self.dir_path):
-            # 清楚之前的日志内容
+            # 清除之前的日志内容
             for file_name in os.listdir(self.dir_path):
                 print(file_name)
                 os.remove(f"{self.dir_path}/{file_name}")
@@ -194,12 +178,12 @@ class MyLog:
             self.rolling_cutting_index = self.get_rolling_cutting_index()
 
     def get_rolling_cutting_index(self):
-        today = datetime.datetime.now().strftime("%Y-%m-%d")
+        today = datetime.now().strftime("%Y-%m-%d")
         index = 1
         if os.listdir(self.dir_path):
             for file_name in os.listdir(self.dir_path):
                 if file_name.find(today) != -1 and file_name.find("_") != -1:
-                    i = int(file_name[:-4].rsplit("_")[1])
+                    i = int(file_name[11:].split(".")[0])
                     index = max(index, i)
             # os.path.getsize 单位为B
             if os.path.exists(f"{self.dir_path}/{today}_{index}.txt"):
@@ -210,3 +194,28 @@ class MyLog:
 
 
 log = MyLog()
+
+
+class Test:
+    def test2(self):
+        log.Debug("debug")
+        log.Info("info")
+        log.Warn("warn")
+        log.Error("error")
+
+
+def test1():
+    log.Debug("debug")
+    log.Info("info")
+    log.Warn("warn")
+    log.Error("error")
+
+
+if __name__ == "__main__":
+    log.mode = log.DEBUG
+    for i in range(10000):
+        test1()
+        Test().test2()
+        log.SLIENT = True
+        Test().test2()
+        log.SLIENT = False
