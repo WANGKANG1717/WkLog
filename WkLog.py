@@ -196,6 +196,8 @@ class MyLog:
 log = MyLog()
 
 
+
+
 class Test:
     def test2(self):
         log.Debug("debug")
@@ -212,8 +214,8 @@ def test1():
 
 
 if __name__ == "__main__":
-    log.mode = log.DEBUG
-    for i in range(10000):
+    # log.mode = log.DEBUG
+    for i in range(1):
         test1()
         Test().test2()
         log.SLIENT = True
