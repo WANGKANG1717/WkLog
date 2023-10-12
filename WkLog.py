@@ -21,12 +21,13 @@ import inspect
 
 class MyLog:
     LEVEL_COLOR = {
-        "Debug": "green",
-        "Info": "blue",
+        "Debug": "blue",
+        "Info": "green",
         "Warn": "yellow",
         "Error": "red",
     }
     MODE = ["debug", "info", "warning", "error"]
+    SLIENT = False  # 静默模式 开启后将隐藏重要的日志信息，避免用户看到重要信息
 
     def __init__(self):
         self.mode = "debug"
@@ -64,7 +65,7 @@ class MyLog:
         level = "Info"
         self.print_msg(class_name, func_name, level, msg)
 
-    def Warning(self, msg):
+    def Warn(self, msg):
         if self.mode in self.MODE[3:]:
             return
         class_name = self.get_calling_class_name()
@@ -82,24 +83,38 @@ class MyLog:
         now = datetime.datetime.now()
         msg_time = now.strftime(self.time_format)
         today = now.strftime("%Y-%m-%d")
-        if class_name != None:
-            res = f"{self.color(msg_time, 'cyan')} {self.color(level, self.LEVEL_COLOR[level]):14s} --- class={class_name}, func={func_name}: {self.color(msg, self.LEVEL_COLOR[level])}"
+        if not self.SLIENT:
+            if class_name != None:
+                res = f"{self.color(msg_time, 'cyan')} {self.color(level, self.LEVEL_COLOR[level]):14s} --- class={class_name}, func={func_name}: {self.color(msg, self.LEVEL_COLOR[level])}"
+            else:
+                res = f"{self.color(msg_time, 'cyan')} {self.color(level, self.LEVEL_COLOR[level]):14s} --- func={func_name}: {self.color(msg, self.LEVEL_COLOR[level])}"
         else:
-            res = f"{self.color(msg_time, 'cyan')} {self.color(level, self.LEVEL_COLOR[level]):14s} --- func={func_name}: {self.color(msg, self.LEVEL_COLOR[level])}"
+            if class_name != None:
+                res = f"{self.color(msg_time, 'cyan')} {self.color(level, self.LEVEL_COLOR[level]):14s} --- {self.color(msg, self.LEVEL_COLOR[level])}"
+            else:
+                res = f"{self.color(msg_time, 'cyan')} {self.color(level, self.LEVEL_COLOR[level]):14s} --- {self.color(msg, self.LEVEL_COLOR[level])}"
         print(res)
         if self.output_to_file:
-            if class_name != None:
-                res = f"{msg_time} {level:5s} --- class={class_name}, func={func_name}: {msg}\n"
+            # 没有开启静默模式
+            if not self.SLIENT:
+                if class_name != None:
+                    res = f"{msg_time} {level:5s} --- class={class_name}, func={func_name}: {msg}\n"
+                else:
+                    res = f"{msg_time} {level:5s} --- func={func_name}: {msg}\n"
             else:
-                res = f"{msg_time} {level:5s} --- func={func_name}: {msg}\n"
+                # 开启静默模式
+                if class_name != None:
+                    res = f"{msg_time} {level:5s} --- {msg}\n"
+                else:
+                    res = f"{msg_time} {level:5s} --- {msg}\n"
             if not self.file_archive:
-                with open(f"{self.dir_path}/log.txt", "a") as f:
+                with open(f"{self.dir_path}/log.txt", "a", encoding="utf-8") as f:
                     f.write(res)
             elif self.file_archive and not self.rolling_cutting:
-                with open(f"{self.dir_path}/{today}.txt", "a") as f:
+                with open(f"{self.dir_path}/{today}.txt", "a", encoding="utf-8") as f:
                     f.write(res)
             elif self.file_archive and self.rolling_cutting:
-                with open(f"{self.dir_path}/{today}_{self.rolling_cutting_index}.txt", "a") as f:
+                with open(f"{self.dir_path}/{today}_{self.rolling_cutting_index}.txt", "a", encoding="utf-8") as f:
                     f.write(res)
                 size = os.path.getsize(f"{self.dir_path}/{today}_{self.rolling_cutting_index}.txt")
                 if size >= self.file_max_size * 1024:
@@ -134,7 +149,7 @@ class MyLog:
     def init_settings(self):
         if not os.path.exists("./log.properties"):
             return
-        with open("./log.properties", "r") as f:
+        with open("./log.properties", "r", encoding="utf-8") as f:
             text = f.read()
             lines = text.split("\n")
             for line in lines:
