@@ -194,30 +194,3 @@ class MyLog:
 
 
 log = MyLog()
-
-
-
-
-class Test:
-    def test2(self):
-        log.Debug("debug")
-        log.Info("info")
-        log.Warn("warn")
-        log.Error("error")
-
-
-def test1():
-    log.Debug("debug")
-    log.Info("info")
-    log.Warn("warn")
-    log.Error("error")
-
-
-if __name__ == "__main__":
-    # log.mode = log.DEBUG
-    for i in range(1):
-        test1()
-        Test().test2()
-        log.SLIENT = True
-        Test().test2()
-        log.SLIENT = False
