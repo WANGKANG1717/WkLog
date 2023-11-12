@@ -112,9 +112,15 @@ class MyLog:
                 with open(f"{self.dir_path}/{today}.txt", "a", encoding="utf-8") as f:
                     f.write(res_to_file)
             elif self.file_archive and self.rolling_cutting:
-                with open(f"{self.dir_path}/{today}_{self.rolling_cutting_index}.txt", "a", encoding="utf-8") as f:
+                with open(
+                    f"{self.dir_path}/{today}_{self.rolling_cutting_index}.txt",
+                    "a",
+                    encoding="utf-8",
+                ) as f:
                     f.write(res_to_file)
-                size = os.path.getsize(f"{self.dir_path}/{today}_{self.rolling_cutting_index}.txt")
+                size = os.path.getsize(
+                    f"{self.dir_path}/{today}_{self.rolling_cutting_index}.txt"
+                )
                 if size >= self.file_max_size * 1024:
                     self.rolling_cutting_index += 1
 
@@ -167,7 +173,11 @@ class MyLog:
                 elif line.startswith("clear_pre_output"):
                     flag = line.split("=")[1].strip()
                     self.clear_pre_output = True if flag == "true" else False
-        if self.output_to_file and self.clear_pre_output and os.path.exists(self.dir_path):
+        if (
+            self.output_to_file
+            and self.clear_pre_output
+            and os.path.exists(self.dir_path)
+        ):
             # 清除之前的日志内容
             for file_name in os.listdir(self.dir_path):
                 print(file_name)
