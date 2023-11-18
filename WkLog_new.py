@@ -136,7 +136,7 @@ class Config:
                     # else:
                     #     print(f"{key_value[0]} not in config")
 
-    def saveConfig(self, config_path="./log2.properties"):
+    def saveConfig(self, config_path="./log.properties"):
         with open(config_path, "w", encoding="utf-8") as f:
             f.write("# log config by WANGKANG\n")
             config = self.getConfig()
@@ -185,7 +185,7 @@ class Config:
                     file_name.find(file_archive_name) != -1
                     and file_name.find("_") != -1
                 ):
-                    i = int(file_name[:-4].rsplit("_")[1])
+                    i = int(file_name[:-4].rsplit("_", 1)[1])
                     index = max(index, i)
             # os.path.getsize 单位为B
             if os.path.exists(f"{self.dir_path}/{file_archive_name}_{index}.txt"):
