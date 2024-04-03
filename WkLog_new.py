@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Date     : 2023-10-12 17:20:00
 # @Author   : WangKang
-# @Blog     : kang17.xyz
+# @Blog     :
 # @Email    : 1686617586@qq.com
 # @Filepath : WkLog.py
 # @Brief    : 日志类 参考了springboot和logging模块的设计方法
@@ -79,7 +79,9 @@ _FILE_CONSOLE = 2
 # 配置类
 # 奶奶的，突然发现pytyon也已经提供了可以读取config的配置类，不过我还是决定自己写好吧
 class Config:
-    ROLLING_CUTTING_START_INDEX = 1  # 滚动切割起始序号 # 这里其实是有问题的，因为每次日期改变，都应该使index从0开始
+    ROLLING_CUTTING_START_INDEX = (
+        1  # 滚动切割起始序号 # 这里其实是有问题的，因为每次日期改变，都应该使index从0开始
+    )
     PRE_FILE_ARCHIVE_NAME = None  # 用来更新index
 
     def __init__(self, config_path=None) -> None:
@@ -92,7 +94,9 @@ class Config:
         self.file_archive_format = "%Y-%m-%d"  # 日志归档格式 默认按照天数归档  使用 - 符号进行分割
         self.rolling_cutting = False  # 滚动切割
         self.file_max_size = 10 * 1024  # 单位kb
-        self.rolling_cutting_index = 0  # 用来记录当前归档序号（一般从1开始计数） 如果为0则由程序自动搜索并设置序号
+        self.rolling_cutting_index = (
+            0  # 用来记录当前归档序号（一般从1开始计数） 如果为0则由程序自动搜索并设置序号
+        )
         self.clear_pre_output = False  # 是否清空之前的日志输出
         self.color = True  # 是否彩色输出 默认彩色输出
         self.slient = False  # 是否输出类名和函数名 默认输出
@@ -121,13 +125,8 @@ class Config:
                         if key_value[1].isdigit():
                             key_value[1] = int(key_value[1])
                         # true or false 转为bool类型
-                        elif (
-                            key_value[1].lower() == "true"
-                            or key_value[1].lower() == "false"
-                        ):
-                            key_value[1] = (
-                                True if key_value[1].lower() == "true" else False
-                            )
+                        elif key_value[1].lower() == "true" or key_value[1].lower() == "false":
+                            key_value[1] = True if key_value[1].lower() == "true" else False
                         # nameToLevel
                         if key_value[0] == "level":
                             key_value[1] = _NAME_TO_LEVEL[key_value[1].upper()]
@@ -169,11 +168,7 @@ class Config:
         if not os.path.exists(self.dir_path):
             os.makedirs(self.dir_path)
 
-        if (
-            self.file_archive
-            and self.rolling_cutting
-            and self.rolling_cutting_index == 0
-        ):
+        if self.file_archive and self.rolling_cutting and self.rolling_cutting_index == 0:
             self.rolling_cutting_index = self._get_rolling_cutting_start_index()
 
     def _get_rolling_cutting_start_index(self):
@@ -181,17 +176,12 @@ class Config:
         index = self.ROLLING_CUTTING_START_INDEX
         if os.listdir(self.dir_path):
             for file_name in os.listdir(self.dir_path):
-                if (
-                    file_name.find(file_archive_name) != -1
-                    and file_name.find("_") != -1
-                ):
+                if file_name.find(file_archive_name) != -1 and file_name.find("_") != -1:
                     i = int(file_name[:-4].rsplit("_", 1)[1])
                     index = max(index, i)
             # os.path.getsize 单位为B
             if os.path.exists(f"{self.dir_path}/{file_archive_name}_{index}.txt"):
-                size = os.path.getsize(
-                    f"{self.dir_path}/{file_archive_name}_{index}.txt"
-                )
+                size = os.path.getsize(f"{self.dir_path}/{file_archive_name}_{index}.txt")
                 if size >= self.file_max_size * 1024:
                     index += 1
         return index
@@ -280,6 +270,8 @@ class MyLog:
         print(res_to_console)
 
     def _print_msg_to_file(self, level, msg, msg_time, class_name, method_name):
+        if not os.path.exists(self.config.dir_path):
+            os.makedirs(self.config.dir_path)
         # 没有开启静默模式
         if not self.config.slient:
             res_to_file = f"{msg_time} {_LEVEL_TO_NAME[level]:8s} --- {f'class={class_name}, ' if class_name else ''}{f'method={method_name}' if method_name else ''}: {msg}\n"
@@ -303,9 +295,7 @@ class MyLog:
                 f.write(res_to_file)
         elif self.config.file_archive and self.config.rolling_cutting:
             file_archive_name = self.config.get_file_archive_name()
-            rolling_cutting_index = self.config.get_rolling_cutting_index(
-                file_archive_name
-            )
+            rolling_cutting_index = self.config.get_rolling_cutting_index(file_archive_name)
             with open(
                 f"{self.config.dir_path}/{file_archive_name}_{rolling_cutting_index}.txt",
                 "a",
@@ -321,9 +311,7 @@ class MyLog:
 
     def _get_calling_class_name(self):
         try:
-            return type(
-                inspect.currentframe().f_back.f_back.f_back.f_locals["self"]
-            ).__name__
+            return type(inspect.currentframe().f_back.f_back.f_back.f_locals["self"]).__name__
         except:
             return None
 
