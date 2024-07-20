@@ -1,18 +1,14 @@
 # -*- coding: utf-8 -*-
 # @Date     : 2023-10-12 17:20:00
 # @Author   : WangKang
-# @Blog     :
+# @Blog     : https://wangkang1717.github.io/
 # @Email    : 1686617586@qq.com
 # @Filepath : WkLog.py
 # @Brief    : 日志类 参考了springboot和logging模块的设计方法
 # Copyright 2023 WANGKANG, All Rights Reserved.
 
 """ 
-默认配置:
-    0. 时间格式: %Y-%m-%d %H:%M:%S.%f
-    1. 文件输出关闭
-    2. 单文件最大尺寸: 10MB
-    3. 默认输出路径: ./log
+项目地址：https://gitee.com/purify_wang/wk-log
 """
 
 # 使用colorama重写
