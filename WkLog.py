@@ -4,7 +4,7 @@
 # @Blog     : https://wangkang1717.github.io/
 # @Email    : 1686617586@qq.com
 # @Filepath : WkLog.py
-# @Brief    : 日志类 参考了springboot和logging模块的设计方法
+# @Brief    : 简洁好用的日志类库
 # Copyright 2023 WANGKANG, All Rights Reserved.
 
 """ 
