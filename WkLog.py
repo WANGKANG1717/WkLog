@@ -82,7 +82,7 @@ DEFAULT_CONFIG = {  # 默认配置
 }
 
 
-class MyLog:
+class WkLog:
     SECTION_NAME = "wklog"
 
     def __init__(self, config_path="./config.ini"):
@@ -258,4 +258,4 @@ class MyLog:
         return datetime.now().strftime(self.file_archive_format)
 
 
-log = MyLog()
+log = WkLog()

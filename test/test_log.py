@@ -47,6 +47,9 @@ if __name__ == "__main__":
     # log.warning("warning")
     # log.info("info")
     # log.debug("debug")
+    # log.output_location = 0
+    # log.level = ERROR
+    # log.slient = True
     for i in range(10000):
         test().test1()
         test2()

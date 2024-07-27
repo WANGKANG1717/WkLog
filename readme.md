@@ -101,28 +101,49 @@ clear_pre_output = false
 
 ## 使用示例：
 
+#### 单例模式
 ```python
 from WkLog import log
 
+
 class Test:
-    def test2(self):
-        log.Debug("debug")
-        log.Info("info")
-        log.Warn("warn")
-        log.Error("error")
+   def test1(self):
+      log.critical("critical")
+      log.fatal("fatal")
+      log.error("error")
+      log.warn("warn")
+      log.warning("warning")
+      log.info("info")
+      log.debug("debug")
 
 
-def test1():
-    log.Debug("debug")
-    log.Info("info")
-    log.Warn("warn")
-    log.Error("error")
+def test2():
+   log.critical("critical")
+   log.fatal("fatal")
+   log.error("error")
+   log.warn("warn")
+   log.warning("warning")
+   log.info("info")
+   log.debug("debug")
 
 
 if __name__ == "__main__":
-    test1()
-    Test().test2()
-    log.SLIENT = True
-    Test().test2()
-    log.SLIENT = False
+   Test().test1()
+   test2()
+
 ```
+
+#### 非单例模式
+```python
+from WkLog import WkLog
+
+log = WkLog()
+
+if __name__ == "__main__":
+   Test().test1()
+   test2()
+```
+
+#### 注意：
+   - 无论是单例模式还是非单例模式，WkLog在初始化的时候都会去尝试读取配置文件(./config.ini)，并根据配置文件中的参数进行初始化。
+   - 如果你设置了参数但是没有生效，可以检查一下当前路径下是否有配置文件
