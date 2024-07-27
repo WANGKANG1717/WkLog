@@ -1,4 +1,4 @@
-from WkLog_new import log
+from WkLog import log
 
 
 class test:
@@ -38,8 +38,8 @@ if __name__ == "__main__":
     # log.config.level = CRITICAL
     # log.config.time_format = "%Y-%m-%d %H:%M:%S.%f"
     # log.config.output_location = 1
-    print(log.config.getConfig())
-    log.config.slient = True
+    # print(log.config.getConfig())
+    # log.config.slient = True
     # log.critical("critical")
     # log.fatal("fatal")
     # log.error("error")
