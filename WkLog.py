@@ -20,15 +20,6 @@ from colorama import init as colorama_init
 from datetime import datetime
 from configparser import ConfigParser
 
-""" 
-重构方案：
-1. 使用config记录配置
-2. 级别优化为5个 与logging模块保持一致
-3. 输出模式设置 文件、控制台、文件+控制台
-4. 程序结构优化
-5. 配置的获取与初始化
-"""
-
 NO_OUTPUT = 100
 CRITICAL = 50
 FATAL = CRITICAL
