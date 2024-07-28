@@ -19,6 +19,7 @@ from colorama import Fore
 from colorama import init as colorama_init
 from datetime import datetime
 from configparser import ConfigParser
+from threading import Lock
 
 NO_OUTPUT = 100
 CRITICAL = 50
@@ -80,6 +81,8 @@ DEFAULT_CONFIG = {  # 默认配置
     "color": True,  # 是否彩色输出 默认彩色输出
     "slient": False,  # 是否输出类名和函数名 默认输出
 }
+
+_log_lock = Lock()
 
 
 class WkLog:
@@ -172,13 +175,14 @@ class WkLog:
         method_name = self._get_calling_method_name()
         msg_time = datetime.now().strftime(self.time_format)
 
-        if self.output_location == _CONSOLE:
-            self._print_msg_to_console(level, msg, msg_time, class_name, method_name)
-        elif self.output_location == _FILE:
-            self._print_msg_to_file(level, msg, msg_time, class_name, method_name)
-        elif self.output_location == _FILE_CONSOLE:
-            self._print_msg_to_console(level, msg, msg_time, class_name, method_name)
-            self._print_msg_to_file(level, msg, msg_time, class_name, method_name)
+        with _log_lock:
+            if self.output_location == _CONSOLE:
+                self._print_msg_to_console(level, msg, msg_time, class_name, method_name)
+            elif self.output_location == _FILE:
+                self._print_msg_to_file(level, msg, msg_time, class_name, method_name)
+            elif self.output_location == _FILE_CONSOLE:
+                self._print_msg_to_console(level, msg, msg_time, class_name, method_name)
+                self._print_msg_to_file(level, msg, msg_time, class_name, method_name)
 
     def _print_msg_to_console(self, level, msg, msg_time, class_name, method_name):
         if not self.slient:
