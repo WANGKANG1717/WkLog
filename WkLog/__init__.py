@@ -1,3 +1,3 @@
-from .WkLog import WkLog, log
+from .WkLog import *
 
-__version__ = "1.0.1"
+__version__ = "1.0.2"
